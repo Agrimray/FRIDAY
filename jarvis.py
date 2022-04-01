@@ -1,5 +1,7 @@
 import random
 import sys
+import time
+import requests
 from requests import get
 import pyttsx3
 import pyaudio
@@ -8,6 +10,7 @@ import wikipedia
 import os
 import datetime
 import cv2
+import pyjokes
 import speech_recognition as sr
 engine= pyttsx3.init()
 voices=engine.getProperty('voices')
@@ -16,6 +19,17 @@ engine.setProperty('voice', voice_id)
 #print(voices[1].id)
 #engine.setProperty('voices',voices[1].id)
 #text to speech
+def news():
+    head=[]
+    main_url="https://newsapi.org/v2/top-headlines?country=us&apiKey=40d469c3f1fa4997aed923e223ec646b"
+    mainpage=requests.get(main_url).json()
+    articles=mainpage["articles"]
+    day=["first","second","third","forth","fifth","sizth","seventh","eighth","ninth","tenth"]
+    for ar in articles:
+        head.append(ar["title"])
+    for i in range(len(day)):
+        speak(f"today's {day[i]} news is: {head[i]}")
+
 def speak(audio):
     engine.say(audio)
     print(audio)
@@ -36,12 +50,13 @@ def takecommand():
 #voice t0 text
 def wish():
     hour=int(datetime.datetime.now().hour)
+    tt=time.strftime("%I:%M %p")
     if hour >=0 and hour <=12:
-        speak("Good Morning")
+        speak(f"Good Morning, its {tt}")
     elif hour>12 and hour<18:
-        speak("Good afternoon")
+        speak(f"Good afternoon, its {tt}")
     else:
-        speak("Good evening")
+        speak(f"Good evening, its {tt}")
     speak("I am Karishma sir. plz ..tel me how may i help you")
 
 
@@ -59,9 +74,13 @@ if __name__=="__main__":
         elif 'open chrome' in query:
             npath = "C:\Program Files\Google\Chrome\Application\chrome.exe"
             os.startfile(npath)
+        elif "close notepad" in query:
+            os.system("taskkill /im notepad.exe")
         elif 'open command prompt' in query:
             npath = "C:\WINDOWS\system32\cmd.exe"
             os.startfile(npath)
+        elif "close command prompt" in query:
+            os.system("taskkill /im cmd.exe")
         elif "open camera" in query:
             cap=cv2.VideoCapture(0)
             while True:
@@ -99,11 +118,27 @@ if __name__=="__main__":
             speak("what to search in google")
             cm=takecommand().lower()
             webbrowser.open(f"www.google.com/search?q={cm}")
+        elif "tell me a joke" in query:
+            joke=pyjokes.get_joke()
+            speak(joke)
         elif "no thanks" in query:
             speak("Thanks for using")
             sys.exit()
-
+        elif "set alarm" in query:
+            nn=int(datetime.datetime.now().hour)
+            if nn==22:
+                music="F:\python coding\jarvis\Music"
+                songs=os.listdir(music)
+                os.startfile(os.path.join(music,songs[0]))
+        elif "you can sleep" in query:
+            speak("Thanks for using")
+            sys.exit()
+        elif "tell me news" in query:
+            speak("Please wait sir, fetching ....")
+            news()
         speak("sir, do u have any other job")
+
+
 
 
 
